@@ -101,10 +101,20 @@ export function userPhotoGallery() {
     photos.value = photosInPreferences;
   };
 
+  const deletePhoto = async (photo: UserPhoto) => {
+    photos.value = photos.value.filter((foto) => foto.filepath !== photo.filepath);
+    const filename = photo.filepath.substr(photo.filepath.lastIndexOf('/') + 1);
+    await Filesystem.deleteFile({
+      path: filename,
+      directory: Directory.Data,
+    });
+  };
+
   watch(photos, cachePhotos);
   onMounted(loadSaved);
   return {
     photos,
     takePhoto,
+    deletePhoto
   };
 }

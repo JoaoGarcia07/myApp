@@ -8,8 +8,8 @@
     <ion-content :fullscreen="true">
       <ion-grid>
         <ion-row>
-          <ion-col sizes="6" :key="photo" v-for="photo in photos">
-            <ion-img :src="photo.webviewPath"></ion-img>
+          <ion-col sizes="6" :Key="photo" v-for="photo in photos">
+            <ion-img @click="showActionSheet(photo)" :src="photo.webviewPath"></ion-img>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -26,6 +26,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
+  actionSheetController,
   IonPage,
   IonHeader,
   IonToolbar,
@@ -39,8 +40,8 @@ import {
   IonCol,
   IonImg,
 } from "@ionic/vue";
-import { camera } from "ionicons/icons";
-import { userPhotoGallery } from "@/composable/userPhotoGallery";
+import { camera, trash, close } from "ionicons/icons";
+import { userPhotoGallery, UserPhoto } from "@/composable/userPhotoGallery";
 
 export default defineComponent({
   name: "Tab1Page",
@@ -59,11 +60,35 @@ export default defineComponent({
     IonImg,
   },
   setup() {
-    const { takePhoto, photos } = userPhotoGallery();
+    const { takePhoto,deletePhoto, photos } = userPhotoGallery();
+    const showActionSheet = async (photo: UserPhoto) => {
+      const actionSheet = await actionSheetController.create({
+        header: 'Photos',
+        buttons: [
+          {
+            text:'Excluir',
+            role:'destructive',
+            icon: trash,
+            handler: () => {deletePhoto(photo);},
+          },
+          {
+            text:'Cancelar',
+            role: close,
+            icon: 'cancel',
+            handler: () => {//nada aqui
+            },
+          },
+        ],
+      })
+      await actionSheet.present();
+    };
     return {
       camera,
+      trash,
+      close,
       takePhoto,
       photos,
+      showActionSheet
     };
   },
 });
